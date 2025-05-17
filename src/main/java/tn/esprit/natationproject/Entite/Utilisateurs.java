@@ -1,78 +1,54 @@
 package tn.esprit.natationproject.Entite;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.time.LocalDate;
+import lombok.*;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
 
 @Entity
-@Table(name = "utilisateurs") // Spécifie explicitement le nom de la table
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "utilisateurs")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Utilisateurs {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id") // Mapping explicite
     private Long id;
 
-    @Column(name = "nom", nullable = false)
+    @Column(nullable = true)
     private String nom;
 
-    @Column(name = "prenom", nullable = false)
+    @Column(nullable = true)
     private String prenom;
-    // ajouter par seif
-    @Column
-    private LocalDate naissance;
 
-    @Column(length = 50)
-    private String nation;
-    //
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(nullable = false)
     private String password;
 
-    @Column(name = "telephone")
     private String telephone;
 
     @Column(name = "document_path")
-    private String document_path;
+    private String documentPath;
 
-    @Column(name = "active", nullable = false)
-    private boolean active;
+    @Column(nullable = false)
+    private boolean active = false;
 
-    @Column(name = "date_creation", nullable = false)
-    private LocalDateTime date_creation;
+    @Column(name = "date_creation", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime dateCreation;
 
-    @Column(name = "role", nullable = false)
-    private String role;
+    @Column(nullable = false)
+    private String role = "CHEF_EQUIPE";
 
-    @Column(name = "club_id")
-    private Long club_id;
-    @Column(name = "nom_club")
+    @Column(name = "nom_club", nullable = true)
     private String nomClub;
 
-    @Column(name = "adresse_club")
+    @Column(name = "adresse_club", nullable = true)
     private String adresseClub;
 
-    // ajouter par seif
-    @OneToMany(mappedBy = "utilisateurs")
-    @JsonIgnore
-    private List<Inscription> inscriptions;
+    public String getFormattedDateCreation() {
+        return dateCreation != null ?
+                dateCreation.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) :
+                "Date non disponible";
+    }
 
-    @OneToMany(mappedBy = "utilisateurs")
-    @JsonIgnore
-    private List<Resultat> resultats;
 }

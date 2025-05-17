@@ -16,6 +16,39 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    public void sendValidationEmail(String toEmail, String nom, String prenom, String nomClub) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("eyatrabelsi868@gmail.com");
+        message.setTo(toEmail);
+        message.setSubject("Validation de votre compte Chef d'Équipe");
+
+        String body = "Cher " + prenom + " " + nom + ",\n\n" +
+                "Votre compte Chef d'Équipe pour le club " + nomClub +
+                " a été validé par l'administrateur de la Fédération Tunisienne de Tennis.\n\n" +
+                "Vous pouvez maintenant vous connecter à votre espace personnel.\n\n" +
+                "Cordialement,\n" +
+                "La Fédération Tunisienne de Tennis";
+
+        message.setText(body);
+
+        mailSender.send(message);
+    }
+    public void sendResetPasswordEmail(String toEmail, String resetLink) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Réinitialisation de mot de passe - Fédération Tunisienne de Tennis");
+
+        String emailContent = "Bonjour,\n\n"
+                + "Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le lien suivant pour définir un nouveau mot de passe :\n"
+                + resetLink + "\n\n"
+                + "Ce lien expirera dans 24 heures.\n\n"
+                + "Si vous n'avez pas fait cette demande, veuillez ignorer cet email.\n\n"
+                + "Cordialement,\n"
+                + "L'équipe de la Fédération Tunisienne de Tennis";
+
+        message.setText(emailContent);
+        mailSender.send(message);
+    }
     public void envoyerEmail(String destinataire, String sujet, String messageTexte) {
         SimpleMailMessage message = new SimpleMailMessage();
 

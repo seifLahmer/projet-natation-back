@@ -13,6 +13,7 @@ import tn.esprit.natationproject.repositories.InscriptionRepository;
 import tn.esprit.natationproject.repositories.UtilisateurRepository;
 import tn.esprit.natationproject.services.EmailService;
 import tn.esprit.natationproject.services.IInscriptionService;
+import tn.esprit.natationproject.Entite.Utilisateurs;
 
 import java.util.List;
 import java.util.Optional;
