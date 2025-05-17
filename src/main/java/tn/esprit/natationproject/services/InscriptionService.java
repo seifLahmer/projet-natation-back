@@ -1,0 +1,81 @@
+package tn.esprit.natationproject.services;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.natationproject.Entite.*;
+import tn.esprit.natationproject.repositories.CompetitionRepository;
+import tn.esprit.natationproject.repositories.InscriptionRepository;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@AllArgsConstructor
+public class InscriptionService implements IInscriptionService {
+
+    InscriptionRepository inscriptionRepository;
+    CompetitionRepository competitionRepository;
+    @Override
+    public List<Inscription> getInscriptions() {
+        return inscriptionRepository.findAll();
+    }
+
+    @Override
+    public Inscription getInscription(int id) {
+        return inscriptionRepository.findById(id).get();
+    }
+
+    @Override
+    public Inscription addInscription(Inscription inscription) {
+        return inscriptionRepository.save(inscription);
+    }
+
+    @Override
+    public Inscription updateInscription(Inscription inscription) {
+            inscriptionRepository.save(inscription);
+        return inscription;
+    }
+
+    @Override
+    public void deleteInscription(int id) {
+        inscriptionRepository.deleteById(id);
+    }
+
+    @Override
+    public void inscrireUtilisateurACompetition(int idCompetition, Long idUtilisateur) {
+        Optional<Competition> competitionOpt = competitionRepository.findById(idCompetition);
+
+
+        Inscription inscription = new Inscription();
+        inscription.setCompetition(competitionOpt.get());
+        User user = new User();
+        user.setId(idUtilisateur);
+        inscription.setUser(user);
+        inscription.setDateInscription(new Date());
+        inscription.setStatut(StatutInscription.EN_ATTENTE);
+
+        inscriptionRepository.save(inscription);
+
+    }
+
+    @Override
+    public List<Inscription> getInscriptionsByUserId(Long userId) {
+        return inscriptionRepository.findInscriptionByUser_Id(userId);
+    }
+
+    @Override
+    public Competition getCompetitionByInscriptionId(int inscriptionId) {
+        Inscription inscription = inscriptionRepository.findById(inscriptionId)
+                .orElseThrow(() -> new RuntimeException("Inscription introuvable"));
+
+        return inscription.getCompetition();
+    }
+
+    public void autoValidateStatut(){
+
+    }
+
+
+
+}
