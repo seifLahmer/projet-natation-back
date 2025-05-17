@@ -49,9 +49,9 @@ public class InscriptionService implements IInscriptionService {
 
         Inscription inscription = new Inscription();
         inscription.setCompetition(competitionOpt.get());
-        User user = new User();
-        user.setId(idUtilisateur);
-        inscription.setUser(user);
+        Utilisateurs utilisateurs = new Utilisateurs();
+        utilisateurs.setId(idUtilisateur);
+        inscription.setUtilisateurs(utilisateurs);
         inscription.setDateInscription(new Date());
         inscription.setStatut(StatutInscription.EN_ATTENTE);
 
@@ -61,7 +61,7 @@ public class InscriptionService implements IInscriptionService {
 
     @Override
     public List<Inscription> getInscriptionsByUserId(Long userId) {
-        return inscriptionRepository.findInscriptionByUser_Id(userId);
+        return inscriptionRepository.findInscriptionByUtilisateurs_Id(userId);
     }
 
     @Override

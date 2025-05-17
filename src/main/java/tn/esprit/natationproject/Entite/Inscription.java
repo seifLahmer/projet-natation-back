@@ -25,7 +25,7 @@ public class Inscription {
     @ManyToOne
     @JoinColumn(name = "id")
     @JsonIgnoreProperties("inscriptions")
-    private User user;
+    private Utilisateurs utilisateurs;
 
     @ManyToOne
     @JoinColumn(name = "idCompetition")

@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
@@ -38,5 +37,5 @@ public class Resultat {
 
     @ManyToOne
     @JsonIgnoreProperties("resultats")
-    private User user;
+    private Utilisateurs utilisateurs;
 }

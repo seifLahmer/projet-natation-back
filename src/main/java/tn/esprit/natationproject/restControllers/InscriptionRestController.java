@@ -3,7 +3,6 @@ package tn.esprit.natationproject.restControllers;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,15 +10,12 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.natationproject.Entite.*;
 import tn.esprit.natationproject.repositories.CompetitionRepository;
 import tn.esprit.natationproject.repositories.InscriptionRepository;
-import tn.esprit.natationproject.repositories.UserRepository;
+import tn.esprit.natationproject.repositories.UtilisateurRepository;
 import tn.esprit.natationproject.services.EmailService;
 import tn.esprit.natationproject.services.IInscriptionService;
 
 import java.util.List;
 import java.util.Optional;
-
-import static tn.esprit.natationproject.Entite.StatutInscription.EN_ATTENTE;
-import static tn.esprit.natationproject.Entite.StatutInscription.REJETEE;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -29,7 +25,7 @@ import static tn.esprit.natationproject.Entite.StatutInscription.REJETEE;
 public class InscriptionRestController {
     private IInscriptionService inscriptionService;
     private EmailService emailService;
-    private UserRepository userRepository;
+    private UtilisateurRepository utilisateurRepository;
     private CompetitionRepository competitionRepository;
     private InscriptionRepository inscriptionRepository;
     @GetMapping
@@ -54,18 +50,18 @@ public class InscriptionRestController {
         inscriptionService.inscrireUtilisateurACompetition(idCompetition, (long) idUtilisateur);
 
         // Récupération de l'utilisateur depuis la base
-        Optional<User> utilisateurOpt = userRepository.findById((long) idUtilisateur);
+        Optional<Utilisateurs> utilisateurOpt = utilisateurRepository.findById((long) idUtilisateur);
         Optional<Competition> competitionOpt = competitionRepository.findById(idCompetition);
 
         if (utilisateurOpt.isPresent() && competitionOpt.isPresent()) {
-            User user = utilisateurOpt.get();
+            Utilisateurs utilisateurs = utilisateurOpt.get();
             Competition competition = competitionOpt.get();
 
             // Template HTML pour l'e-mail
             String html = "<html>" +
                     "<body style='font-family: Arial, sans-serif; color: #333;'>"
                     + "<div style='border:1px solid #dce3ec; padding:20px; border-radius:8px;'>"
-                    + "<h2 style='color:#1E88E5;'>Bonjour " + user.getNom() + ",</h2>"
+                    + "<h2 style='color:#1E88E5;'>Bonjour " + utilisateurs.getNom() + ",</h2>"
                     + "<p>🎉 Vous avez été <strong>inscrit(e)</strong> à la compétition de <strong>" + competition.getTypeC().name() + "</strong>.</p>"
                     + "<p style='font-size:16px;'>📌 <strong>Statut :</strong> <span style='color: orange;'>En attente de validation</span></p>"
                     + "<p>Nous vous remercions pour votre participation et vous souhaitons bonne chance ! 🏊‍♂️</p>"
@@ -73,7 +69,7 @@ public class InscriptionRestController {
                     + "</div></body></html>";
 
             try {
-                emailService.envoyerEmailHtml(user.getEmail(), "Votre inscription est en attente", html);
+                emailService.envoyerEmailHtml(utilisateurs.getEmail(), "Votre inscription est en attente", html);
             } catch (MessagingException e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'envoi de l'e-mail HTML.");
             }
@@ -125,7 +121,7 @@ public class InscriptionRestController {
             inscription.setStatut(nouveauStatut);
             inscriptionRepository.save(inscription);
 
-            User user = inscription.getUser();
+            Utilisateurs utilisateurs = inscription.getUtilisateurs();
             Competition competition = inscription.getCompetition();
 
             // Choix de la couleur en fonction du statut
@@ -139,7 +135,7 @@ public class InscriptionRestController {
             // Construction de l'e-mail HTML
             String html = "<html><body style='font-family: Arial; color: #333;'>" +
                     "<div style='padding:20px; border:1px solid #dce3ec; border-radius:10px;'>"
-                    + "<h2>Bonjour " + user.getNom() + ",</h2>"
+                    + "<h2>Bonjour " + utilisateurs.getNom() + ",</h2>"
                     + "<p>Le statut de votre inscription à la compétition <strong>" + competition.getTypeC().name() + "</strong> a été mis à jour.</p>"
                     + "<p style='font-size:16px;'>📌 Nouveau statut : <strong style='color:" + couleur + ";'>" + nouveauStatut.name().replace("_", " ") + "</strong></p>"
                     + "<p>Merci pour votre participation et à très bientôt en piscine 🏊‍♂️ !</p>"
@@ -147,7 +143,7 @@ public class InscriptionRestController {
                     + "</div></body></html>";
 
             try {
-                emailService.envoyerEmailHtml(user.getEmail(), "Mise à jour de votre inscription", html);
+                emailService.envoyerEmailHtml(utilisateurs.getEmail(), "Mise à jour de votre inscription", html);
             } catch (MessagingException e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'envoi de l'e-mail.");
             }
