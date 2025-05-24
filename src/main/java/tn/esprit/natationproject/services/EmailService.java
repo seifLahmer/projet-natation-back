@@ -19,10 +19,10 @@ public class EmailService {
 
         String body = "Cher " + prenom + " " + nom + ",\n\n" +
                 "Votre compte Chef d'Équipe pour le club " + nomClub +
-                " a été validé par l'administrateur de la Fédération Tunisienne de Tennis.\n\n" +
+                " a été validé par l'administrateur de la Fédération Tunisienne de Natation.\n\n" +
                 "Vous pouvez maintenant vous connecter à votre espace personnel.\n\n" +
                 "Cordialement,\n" +
-                "La Fédération Tunisienne de Tennis";
+                "La Fédération Tunisienne de Natation";
 
         message.setText(body);
 
@@ -31,7 +31,7 @@ public class EmailService {
     public void sendResetPasswordEmail(String toEmail, String resetLink) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
-        message.setSubject("Réinitialisation de mot de passe - Fédération Tunisienne de Tennis");
+        message.setSubject("Réinitialisation de mot de passe - Fédération Tunisienne de Natation");
 
         String emailContent = "Bonjour,\n\n"
                 + "Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le lien suivant pour définir un nouveau mot de passe :\n"
@@ -39,7 +39,7 @@ public class EmailService {
                 + "Ce lien expirera dans 24 heures.\n\n"
                 + "Si vous n'avez pas fait cette demande, veuillez ignorer cet email.\n\n"
                 + "Cordialement,\n"
-                + "L'équipe de la Fédération Tunisienne de Tennis";
+                + "L'équipe de la Fédération Tunisienne de Natation";
 
         message.setText(emailContent);
         mailSender.send(message);

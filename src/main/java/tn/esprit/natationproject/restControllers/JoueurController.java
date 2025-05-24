@@ -12,6 +12,7 @@ import tn.esprit.natationproject.repositories.UtilisateurRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 @RestController
@@ -145,5 +146,68 @@ public class JoueurController {
     @GetMapping("/sans-club")
     public ResponseEntity<List<Utilisateur>> getJoueursSansClub() {
         return ResponseEntity.ok(utilisateurRepository.findByRoleAndNomClubIsNull("JOUEUR"));
+    }
+    @PutMapping("/modifier")
+    public ResponseEntity<?> modifierJoueur(@RequestBody Map<String, Object> request) {
+        try {
+            Long id = Long.parseLong(request.get("id").toString());
+            String nom = (String) request.get("nom");
+            String prenom = (String) request.get("prenom");
+            String email = (String) request.get("email");
+            String telephone = (String) request.get("telephone");
+
+            Optional<Utilisateur> joueurOpt = utilisateurRepository.findById(id);
+            if (joueurOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Utilisateur joueur = joueurOpt.get();
+            joueur.setNom(nom);
+            joueur.setPrenom(prenom);
+            joueur.setEmail(email);
+            joueur.setTelephone(telephone);
+
+            utilisateurRepository.save(joueur);
+
+            return ResponseEntity.ok(Map.of("message", "Joueur modifié avec succès"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("Erreur serveur: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/supprimer")
+    public ResponseEntity<?> supprimerJoueur(@RequestBody Map<String, Object> request) {
+        try {
+            Long id = Long.parseLong(request.get("id").toString());
+            String email = (String) request.get("email");
+
+            Optional<Utilisateur> joueurOpt = utilisateurRepository.findById(id);
+            if (joueurOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Envoyer l'email avant de supprimer
+            sendDeletionEmail(email);
+
+            utilisateurRepository.deleteById(id);
+
+            return ResponseEntity.ok(Map.of("message", "Joueur supprimé avec succès"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("Erreur serveur: " + e.getMessage());
+        }
+    }
+
+    private void sendDeletionEmail(String email) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Suppression de l'équipe");
+        message.setText("Bonjour,\n\n"
+                + "Nous vous informons que vous avez été supprimé de l'équipe par votre chef d'équipe.\n\n"
+                + "Si vous pensez qu'il s'agit d'une erreur, veuillez contacter votre club.\n\n"
+                + "Cordialement,\n"
+                + "L'équipe de la Fédération");
+        mailSender.send(message);
     }
 }

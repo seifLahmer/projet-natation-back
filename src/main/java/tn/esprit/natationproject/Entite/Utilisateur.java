@@ -50,4 +50,5 @@ public class Utilisateur {
                 dateCreation.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) :
                 "Date non disponible";
     }
+
 }
