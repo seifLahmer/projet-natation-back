@@ -59,7 +59,7 @@ public class AdminController {
         Activity activity = new Activity();
         activity.setAction("Chef validé");
         activity.setDetails(String.format(" Nom: %s %s, Club: %s",
-                 chef.getNom(), chef.getPrenom(), chef.getNomClub()));
+                chef.getNom(), chef.getPrenom(), chef.getNomClub()));
         activity.setTimestamp(LocalDateTime.now());
         activityRepository.save(activity);
 
@@ -84,9 +84,17 @@ public class AdminController {
 
     @DeleteMapping("/rejeter-chef/{id}")
     public ResponseEntity<?> rejeterChef(@PathVariable Long id) {
-        if (!utilisateurRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
+        Utilisateur chef = utilisateurRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Chef d'équipe non trouvé avec l'id: " + id));
+
+        // Enregistrement de l'activité avant suppression
+        Activity activity = new Activity();
+        activity.setAction("Chef rejeté");
+        activity.setDetails(String.format("Nom: %s %s, Club: %s",
+                chef.getNom(), chef.getPrenom(), chef.getNomClub()));
+        activity.setTimestamp(LocalDateTime.now());
+        activityRepository.save(activity);
+
         utilisateurRepository.deleteById(id);
         return ResponseEntity.ok(Map.of("message", "Chef rejeté avec succès"));
     }
@@ -95,6 +103,11 @@ public class AdminController {
     public ResponseEntity<?> modifierChef(@PathVariable Long id, @RequestBody Map<String, String> updates) {
         Utilisateur chef = utilisateurRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("Chef d'équipe non trouvé avec l'id: " + id));
+
+        // Sauvegarder les anciennes valeurs pour les logs
+        String ancienNom = chef.getNom();
+        String ancienPrenom = chef.getPrenom();
+        String ancienClub = chef.getNomClub();
 
         if (updates.containsKey("nom")) {
             chef.setNom(updates.get("nom"));
@@ -116,6 +129,15 @@ public class AdminController {
         }
 
         utilisateurRepository.save(chef);
+
+        // Enregistrement de l'activité
+        Activity activity = new Activity();
+        activity.setAction("Chef modifié");
+        activity.setDetails(String.format("Ancien: %s %s, Club: %s | Nouveau: %s %s, Club: %s",
+                ancienNom, ancienPrenom, ancienClub,
+                chef.getNom(), chef.getPrenom(), chef.getNomClub()));
+        activity.setTimestamp(LocalDateTime.now());
+        activityRepository.save(activity);
 
         return ResponseEntity.ok(Map.of("message", "Chef modifié avec succès"));
     }
