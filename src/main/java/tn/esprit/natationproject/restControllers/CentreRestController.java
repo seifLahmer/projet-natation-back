@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("api/centres")
+@RequestMapping("api/admin/centres")
 @Tag(name = "gestion des centres")
 
 @AllArgsConstructor

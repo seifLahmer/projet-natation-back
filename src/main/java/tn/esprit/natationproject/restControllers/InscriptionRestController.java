@@ -14,8 +14,12 @@ import tn.esprit.natationproject.repositories.UtilisateurRepository;
 import tn.esprit.natationproject.services.EmailService;
 import tn.esprit.natationproject.services.IInscriptionService;
 import tn.esprit.natationproject.Entite.Utilisateurs;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.Jwt;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -46,9 +50,21 @@ public class InscriptionRestController {
 
 
     @PostMapping("/inscrire/{idCompetition}")
-    public ResponseEntity<String> inscrire(@PathVariable int idCompetition) {
-        int idUtilisateur = 3; // temporaire : id utilisateur hardcodé
-        inscriptionService.inscrireUtilisateurACompetition(idCompetition, (long) idUtilisateur);
+    public ResponseEntity<String> inscrire(@PathVariable int idCompetition,
+                                           @RequestBody Map<String, Object> requestBody) {
+        if (!requestBody.containsKey("idUtilisateur")) {
+            return ResponseEntity.badRequest().body("ID utilisateur manquant dans le corps de la requête.");
+        }
+
+        Long idUtilisateur;
+        try {
+            idUtilisateur = Long.parseLong(requestBody.get("idUtilisateur").toString());
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body("ID utilisateur invalide.");
+        }
+
+
+        inscriptionService.inscrireUtilisateurACompetition(idCompetition, idUtilisateur);
 
         // Récupération de l'utilisateur depuis la base
         Optional<Utilisateurs> utilisateurOpt = utilisateurRepository.findById((long) idUtilisateur);
@@ -154,6 +170,7 @@ public class InscriptionRestController {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Inscription introuvable.");
     }
+
 
 
 }

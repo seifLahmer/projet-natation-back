@@ -11,6 +11,12 @@ import java.util.List;
 public class ResultatService implements IResultatService {
 
     ResultatRepository resultatRepository;
+
+    @Override
+    public List<Resultat> getResultat() {
+        return resultatRepository.findAll();
+    }
+
     @Override
     public Resultat getResultat(int idResultat) {
         return resultatRepository.findById(idResultat).get();

@@ -12,7 +12,7 @@ import tn.esprit.natationproject.services.PiscineService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/piscines")
+@RequestMapping("api/admin/piscines")
 
 @Tag(name = "gestion des piscines")
 @CrossOrigin(origins = "http://localhost:4200")

@@ -18,6 +18,10 @@ public class ResultatRestController {
 
     private IResultatService resultatService;
 
+    @GetMapping
+    public List<Resultat> findAll() {
+        return resultatService.getResultat();
+    }
     @GetMapping("/{id}")
     public Resultat getResultat(@PathVariable int id) {
         return resultatService.getResultat(id);
@@ -44,5 +48,8 @@ public class ResultatRestController {
         List<Resultat> resultats = resultatService.getResultatsParTypeCompetition(typeC);
         return ResponseEntity.ok(resultats);
     }
+
+
+
 
 }
