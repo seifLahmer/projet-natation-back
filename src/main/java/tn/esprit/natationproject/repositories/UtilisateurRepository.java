@@ -22,6 +22,8 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
 
     @Query("SELECT COUNT(DISTINCT u.nomClub) FROM Utilisateur u WHERE u.nomClub IS NOT NULL")
     Long countDistinctClubs();
+    // Dans UtilisateurRepository.java
+    List<Utilisateur> findByRoleAndNomClub(String role, String nomClub);
 
 
 } 

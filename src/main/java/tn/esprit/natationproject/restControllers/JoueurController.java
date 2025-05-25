@@ -29,7 +29,7 @@ public class JoueurController {
     public ResponseEntity<?> ajouterJoueurParEmail(@RequestBody Map<String, String> request) {
         try {
             String email = request.get("email");
-            String nomClub = request.get("nomClub");
+            String chefEmail = request.get("chefEmail"); // Nouveau paramètre
 
             if (email == null || email.isEmpty()) {
                 return ResponseEntity.badRequest().body("L'email est obligatoire");
@@ -43,6 +43,13 @@ public class JoueurController {
                 return ResponseEntity.badRequest().body("Email déjà utilisé");
             }
 
+            // Récupérer les infos du chef d'équipe
+            Optional<Utilisateur> chefOpt = utilisateurRepository.findByEmail(chefEmail);
+            if (chefOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("Chef d'équipe non trouvé");
+            }
+            Utilisateur chef = chefOpt.get();
+
             String password = generateRandomPassword();
 
             Utilisateur joueur = new Utilisateur();
@@ -54,7 +61,8 @@ public class JoueurController {
             joueur.setNom("Joueur");
             joueur.setPrenom("Nouveau");
             joueur.setTelephone("");
-            joueur.setNomClub(nomClub);
+            joueur.setNomClub(chef.getNomClub()); // Utilise le nom du club du chef
+            joueur.setAdresseClub(chef.getAdresseClub()); // Utilise l'adresse du club du chef
 
             utilisateurRepository.save(joueur);
 
@@ -77,7 +85,7 @@ public class JoueurController {
             String nom = request.get("nom");
             String prenom = request.get("prenom");
             String telephone = request.get("telephone");
-            String nomClub = request.get("nomClub");
+            String chefEmail = request.get("chefEmail"); // Nouveau paramètre
 
             if (email == null || email.isEmpty()) {
                 return ResponseEntity.badRequest().body("L'email est obligatoire");
@@ -91,6 +99,13 @@ public class JoueurController {
                 return ResponseEntity.badRequest().body("Email déjà utilisé");
             }
 
+            // Récupérer les infos du chef d'équipe
+            Optional<Utilisateur> chefOpt = utilisateurRepository.findByEmail(chefEmail);
+            if (chefOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("Chef d'équipe non trouvé");
+            }
+            Utilisateur chef = chefOpt.get();
+
             String password = generateRandomPassword();
 
             Utilisateur joueur = new Utilisateur();
@@ -102,7 +117,8 @@ public class JoueurController {
             joueur.setNom(nom != null ? nom : "Joueur");
             joueur.setPrenom(prenom != null ? prenom : "Nouveau");
             joueur.setTelephone(telephone != null ? telephone : "");
-            joueur.setNomClub(nomClub);
+            joueur.setNomClub(chef.getNomClub()); // Utilise le nom du club du chef
+            joueur.setAdresseClub(chef.getAdresseClub()); // Utilise l'adresse du club du chef
 
             utilisateurRepository.save(joueur);
 
@@ -147,6 +163,12 @@ public class JoueurController {
     public ResponseEntity<List<Utilisateur>> getJoueursSansClub() {
         return ResponseEntity.ok(utilisateurRepository.findByRoleAndNomClubIsNull("JOUEUR"));
     }
+
+    @GetMapping("/par-club")
+    public ResponseEntity<List<Utilisateur>> getJoueursParClub(@RequestParam String nomClub) {
+        return ResponseEntity.ok(utilisateurRepository.findByRoleAndNomClub("JOUEUR", nomClub));
+    }
+
     @PutMapping("/modifier")
     public ResponseEntity<?> modifierJoueur(@RequestBody Map<String, Object> request) {
         try {
