@@ -132,4 +132,68 @@ public class LoginController {
             );
         }
     }
-}
+
+    @GetMapping("/user-details")
+    public ResponseEntity<?> getUserDetails(@RequestParam String email) {
+        try {
+            Optional<Utilisateurs> userOpt = utilisateurRepository.findByEmail(email);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Utilisateurs user = userOpt.get();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getId());
+            response.put("nom", user.getNom());
+            response.put("prenom", user.getPrenom());
+            response.put("email", user.getEmail());
+            response.put("telephone", user.getTelephone());
+            response.put("nomClub", user.getNomClub());
+            response.put("adresseClub", user.getAdresseClub()); // Ajout ici
+            response.put("dateCreation", user.getDateCreation());
+            response.put("role", user.getRole());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Erreur serveur: " + e.getMessage()));
+        }
+    }
+
+
+    @PutMapping("/update-profile")
+    public ResponseEntity<?> updateProfile(@RequestBody Utilisateurs updatedUser) {
+        try {
+            Optional<Utilisateurs> userOpt = utilisateurRepository.findById(updatedUser.getId());
+
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Utilisateurs user = userOpt.get();
+
+            // Mettre à jour les champs modifiables
+            user.setNom(updatedUser.getNom());
+            user.setPrenom(updatedUser.getPrenom());
+            user.setEmail(updatedUser.getEmail());
+            user.setTelephone(updatedUser.getTelephone());
+
+            // Ne pas mettre à jour nomClub s'il est null dans la requête
+            if (updatedUser.getNomClub() != null) {
+                user.setNomClub(updatedUser.getNomClub());
+            }
+
+            // Ajouter la mise à jour de l'adresse du club
+            if (updatedUser.getAdresseClub() != null) {
+                user.setAdresseClub(updatedUser.getAdresseClub());
+            }
+
+            utilisateurRepository.save(user);
+
+            return ResponseEntity.ok(Map.of("message", "Profil mis à jour avec succès"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Erreur serveur: " + e.getMessage()));
+        }
+    }}
