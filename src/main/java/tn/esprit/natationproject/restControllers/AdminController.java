@@ -3,10 +3,13 @@ package tn.esprit.natationproject.restControllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.natationproject.Entite.Activity;
 import tn.esprit.natationproject.Entite.Utilisateur;
+import tn.esprit.natationproject.repositories.ActivityRepository;
 import tn.esprit.natationproject.repositories.UtilisateurRepository;
 import tn.esprit.natationproject.services.EmailService;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +22,7 @@ public class AdminController {
 
     private final UtilisateurRepository utilisateurRepository;
     private final EmailService emailService;
+    private final ActivityRepository activityRepository;
 
     @GetMapping("/chefs-a-valider")
     public ResponseEntity<List<Map<String, Object>>> getChefsEnAttente() {
@@ -50,6 +54,14 @@ public class AdminController {
 
         chef.setActive(true);
         utilisateurRepository.save(chef);
+
+        // Enregistrement de l'activité
+        Activity activity = new Activity();
+        activity.setAction("Chef validé");
+        activity.setDetails(String.format(" Nom: %s %s, Club: %s",
+                 chef.getNom(), chef.getPrenom(), chef.getNomClub()));
+        activity.setTimestamp(LocalDateTime.now());
+        activityRepository.save(activity);
 
         try {
             emailService.sendValidationEmail(
@@ -116,4 +128,9 @@ public class AdminController {
         return ResponseEntity.ok(stats);
     }
 
+    @GetMapping("/activities")
+    public ResponseEntity<List<Activity>> getLastActivities() {
+        List<Activity> activities = activityRepository.findTop5ByOrderByTimestampDesc();
+        return ResponseEntity.ok(activities);
+    }
 }
