@@ -62,7 +62,7 @@ public class SecurityConfig {
 
                         // Plus tard, qu    and vous voudrez sécuriser des endpoints, décommentez ces lignes :
 
-                        .requestMatchers("/api/auth/**", "/api/inscriptions/**", "/api/documents/**", "api/competitions/**" , "/api/resultats/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/inscriptions/**", "/api/documents/**", "api/competitions/**" , "/api/resultats/**" ,"/forum/**").permitAll()
 
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/chef/**").hasRole("CHEF_EQUIPE")

@@ -1,14 +1,16 @@
 package tn.esprit.natationproject.Entite;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "Comment")
 @Getter
 @Setter
 @ToString
@@ -16,5 +18,12 @@ import lombok.ToString;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idComment;
+    private Long id;
+    @ManyToOne
+    private Utilisateurs author;
+    @JsonIgnore
+    @ManyToOne
+    private Post post;
+    private String content;
+    private LocalDateTime createdAt;
 }

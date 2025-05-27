@@ -1,30 +1,25 @@
 package tn.esprit.natationproject.Entite;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "Post")
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
-public class Post {
+@AllArgsConstructor
+@Entity
+public class Thread {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String title;
     @ManyToOne
     private Utilisateurs author;
-    @ManyToOne
-    private Thread threads;
-    private String content;
-    private LocalDateTime createdAt;
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments;
+    @OneToMany(mappedBy = "threads", cascade = CascadeType.REMOVE)
+    private List<Post> posts;
 }
