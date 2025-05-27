@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "utilisateurs")
+
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Utilisateurs implements UserDetails {
     @Id
@@ -34,22 +34,21 @@ public class Utilisateurs implements UserDetails {
 
     private String telephone;
 
-    @Column(name = "document_path")
     private String documentPath;
 
     @Column(nullable = false)
     private boolean active = false;
 
-    @Column(name = "date_creation", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column( nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime dateCreation;
 
     @Column(nullable = false)
     private String role = "CHEF_EQUIPE";
 
-    @Column(name = "nom_club", nullable = true)
+
     private String nomClub;
 
-    @Column(name = "adresse_club", nullable = true)
+
     private String adresseClub;
 
     @OneToMany(mappedBy = "utilisateurs")
