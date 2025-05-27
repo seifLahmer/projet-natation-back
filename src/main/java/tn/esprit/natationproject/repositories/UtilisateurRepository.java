@@ -27,6 +27,6 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateurs, Long>
 
     @Query("SELECT i.utilisateurs FROM Inscription i WHERE i.competition.idReservation = (" +
             "SELECT ins.competition.idReservation FROM Inscription ins WHERE ins.idInscription = :idInscription)")
-    List<Utilisateurs> findUtilisateursB(Integer idInscription);
+    List<Utilisateurs> findUtilisateurs(Integer idInscription);
 
 }
