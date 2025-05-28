@@ -25,6 +25,29 @@ public class AdminController {
     private final EmailService emailService;
     private final ActivityRepository activityRepository;
 
+    @GetMapping("/activities")
+    public ResponseEntity<Map<String, Object>> getActivities() {
+        Map<String, Object> activities = new HashMap<>();
+        
+        // Récupérer les statistiques
+        activities.put("chefsValides", utilisateurRepository.countByActiveTrueAndRole("CHEF_EQUIPE"));
+        activities.put("clubsEnregistres", utilisateurRepository.countDistinctClubs());
+        
+        // Récupérer les chefs en attente de validation
+        List<Utilisateurs> chefsEnAttente = utilisateurRepository.findByActiveFalseAndRole("CHEF_EQUIPE");
+        activities.put("chefsEnAttente", chefsEnAttente.stream().map(chef -> {
+            Map<String, Object> chefMap = new HashMap<>();
+            chefMap.put("id", chef.getId());
+            chefMap.put("nom", chef.getNom());
+            chefMap.put("prenom", chef.getPrenom());
+            chefMap.put("email", chef.getEmail());
+            chefMap.put("dateCreation", chef.getFormattedDateCreation());
+            return chefMap;
+        }).collect(Collectors.toList()));
+
+        return ResponseEntity.ok(activities);
+    }
+
     @GetMapping("/chefs-a-valider")
     public ResponseEntity<List<Map<String, Object>>> getChefsEnAttente() {
         List<Utilisateurs> chefs = utilisateurRepository.findByActiveFalseAndRole("CHEF_EQUIPE");
@@ -142,14 +165,14 @@ public class AdminController {
 
         return ResponseEntity.ok(Map.of("message", "Chef modifié avec succès"));
     }
-
-    @GetMapping("/stats")
+  @GetMapping("/stats")
     public ResponseEntity<Map<String, Long>> getStats() {
         Map<String, Long> stats = new HashMap<>();
         stats.put("chefsValides", utilisateurRepository.countByActiveTrueAndRole("CHEF_EQUIPE"));
         stats.put("clubsEnregistres", utilisateurRepository.countDistinctClubs());
         return ResponseEntity.ok(stats);
     }
+  
 
     @GetMapping("/activities")
     public ResponseEntity<List<Activity>> getLastActivities() {

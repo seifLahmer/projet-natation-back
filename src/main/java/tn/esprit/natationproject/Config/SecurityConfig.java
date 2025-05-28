@@ -10,19 +10,20 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.filter.CorsFilter;
 import tn.esprit.natationproject.repositories.UtilisateurRepository;
-
-
-import java.util.List;
+import org.springframework.web.filter.OncePerRequestFilter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -32,12 +33,12 @@ public class SecurityConfig {
     private final UtilisateurRepository utilisateurRepository;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final tn.esprit.natationproject.services.CustomUserDetailsService userDetailsService;
+    private final CorsFilter corsFilter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    // SecurityConfig.java
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -56,41 +57,52 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .addFilterBefore(corsFilter, BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                                // Vous pouvez commencer avec toutes les requêtes autorisées comme avant
 
-                        // Plus tard, qu    and vous voudrez sécuriser des endpoints, décommentez ces lignes :
 
-                        .requestMatchers("/api/auth/**", "/api/inscriptions/**", "/api/documents/**", "api/competitions/**" , "/api/resultats/**" ,"/forum/**").permitAll()
-
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/chef/**").hasRole("CHEF_EQUIPE")
-                        .requestMatchers("/api/joueurs/**").hasRole("CHEF_EQUIPE")
+                        .requestMatchers(
+                            "/api/auth/**",
+                            "/api/inscriptions/**",
+                            "/api/documents/**",
+                            "api/competitions/**",
+                            "/api/resultats/**",
+                            "/api/licences/parmail/**",
+                                "/forum/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/licences/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/licences/{id}").permitAll()
+                        .requestMatchers("/error").permitAll()  // Allow error endpoints
+                        .requestMatchers("/api/admin/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/licences/**").hasAnyAuthority("CHEF_EQUIPE", "ROLE_CHEF_EQUIPE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/licences/**").hasAnyAuthority("CHEF_EQUIPE", "ROLE_CHEF_EQUIPE")
+                        .requestMatchers(HttpMethod.GET, "/api/licences/**").authenticated()
+                        .requestMatchers("/api/chef/**").hasAnyAuthority("CHEF_EQUIPE", "ROLE_CHEF_EQUIPE")
+                        .requestMatchers("/api/joueurs/**").hasAnyAuthority("CHEF_EQUIPE", "ROLE_CHEF_EQUIPE")
 
                         .anyRequest().authenticated()
-
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .authenticationProvider(authenticationProvider());
+
+        // Add JWT filter only for non-PUT /api/licences requests
+        http.addFilterBefore(new OncePerRequestFilter() {
+            @Override
+            protected void doFilterInternal(
+                    HttpServletRequest request,
+                    HttpServletResponse response,
+                    FilterChain filterChain
+            ) throws ServletException, IOException {
+                if (request.getMethod().equals("PUT") && request.getRequestURI().startsWith("/api/licences/")) {
+                    filterChain.doFilter(request, response);
+                } else {
+                    jwtAuthFilter.doFilterInternal(request, response, filterChain);
+                }
+            }
+        }, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
-
-
 }
