@@ -65,10 +65,9 @@ public class SecurityConfig {
                             "/api/auth/**",
                             "/api/inscriptions/**",
                             "/api/documents/**",
-                            "api/competitions/**",
+                            "/api/competitions/**",
                             "/api/resultats/**",
-                            "/api/licences/parmail/**",
-                                "/forum/**"
+                            "/api/licences/parmail/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/licences/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/licences/{id}").permitAll()
@@ -77,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/licences/**").hasAnyAuthority("CHEF_EQUIPE", "ROLE_CHEF_EQUIPE")
                         .requestMatchers(HttpMethod.DELETE, "/api/licences/**").hasAnyAuthority("CHEF_EQUIPE", "ROLE_CHEF_EQUIPE")
                         .requestMatchers(HttpMethod.GET, "/api/licences/**").authenticated()
+                        .requestMatchers("/forum/**").authenticated()
                         .requestMatchers("/api/chef/**").hasAnyAuthority("CHEF_EQUIPE", "ROLE_CHEF_EQUIPE")
                         .requestMatchers("/api/joueurs/**").hasAnyAuthority("CHEF_EQUIPE", "ROLE_CHEF_EQUIPE")
 

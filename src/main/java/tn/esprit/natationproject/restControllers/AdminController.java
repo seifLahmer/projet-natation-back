@@ -25,28 +25,28 @@ public class AdminController {
     private final EmailService emailService;
     private final ActivityRepository activityRepository;
 
-    @GetMapping("/activities")
-    public ResponseEntity<Map<String, Object>> getActivities() {
-        Map<String, Object> activities = new HashMap<>();
-        
-        // Récupérer les statistiques
-        activities.put("chefsValides", utilisateurRepository.countByActiveTrueAndRole("CHEF_EQUIPE"));
-        activities.put("clubsEnregistres", utilisateurRepository.countDistinctClubs());
-        
-        // Récupérer les chefs en attente de validation
-        List<Utilisateurs> chefsEnAttente = utilisateurRepository.findByActiveFalseAndRole("CHEF_EQUIPE");
-        activities.put("chefsEnAttente", chefsEnAttente.stream().map(chef -> {
-            Map<String, Object> chefMap = new HashMap<>();
-            chefMap.put("id", chef.getId());
-            chefMap.put("nom", chef.getNom());
-            chefMap.put("prenom", chef.getPrenom());
-            chefMap.put("email", chef.getEmail());
-            chefMap.put("dateCreation", chef.getFormattedDateCreation());
-            return chefMap;
-        }).collect(Collectors.toList()));
-
-        return ResponseEntity.ok(activities);
-    }
+//    @GetMapping("/activities")
+//    public ResponseEntity<Map<String, Object>> getActivities() {
+//        Map<String, Object> activities = new HashMap<>();
+//
+//        // Récupérer les statistiques
+//        activities.put("chefsValides", utilisateurRepository.countByActiveTrueAndRole("CHEF_EQUIPE"));
+//        activities.put("clubsEnregistres", utilisateurRepository.countDistinctClubs());
+//
+//        // Récupérer les chefs en attente de validation
+//        List<Utilisateurs> chefsEnAttente = utilisateurRepository.findByActiveFalseAndRole("CHEF_EQUIPE");
+//        activities.put("chefsEnAttente", chefsEnAttente.stream().map(chef -> {
+//            Map<String, Object> chefMap = new HashMap<>();
+//            chefMap.put("id", chef.getId());
+//            chefMap.put("nom", chef.getNom());
+//            chefMap.put("prenom", chef.getPrenom());
+//            chefMap.put("email", chef.getEmail());
+//            chefMap.put("dateCreation", chef.getFormattedDateCreation());
+//            return chefMap;
+//        }).collect(Collectors.toList()));
+//
+//        return ResponseEntity.ok(activities);
+//    }
 
     @GetMapping("/chefs-a-valider")
     public ResponseEntity<List<Map<String, Object>>> getChefsEnAttente() {

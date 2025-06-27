@@ -38,7 +38,7 @@ public class ForumController {
     @PostMapping("/threads")
     public ThreadDTO createThread(@RequestBody Thread thread) {
         // Removed authentication - you might want to handle author differently now
-        Utilisateurs author = userRepository.findById(1L).orElseThrow(() -> new RuntimeException("Default user not found"));
+        Utilisateurs author = userRepository.findById(5L).orElseThrow(() -> new RuntimeException("Default user not found"));
         Thread threads = forumService.createThread(thread.getTitle(), author);
         return modelMapper.map(threads, ThreadDTO.class);
     }
@@ -79,7 +79,7 @@ public class ForumController {
     public PostDTO createPost(@PathVariable Long threadId, @RequestBody PostDTO postDTO) {
         Thread thread = threadRepository.findById(threadId).orElseThrow(() -> new RuntimeException("Thread not found"));
         // Using a default user since authentication is removed
-        Utilisateurs author = userRepository.findById(1L).orElseThrow(() -> new RuntimeException("Default user not found"));
+        Utilisateurs author = userRepository.findById(5L).orElseThrow(() -> new RuntimeException("Default user not found"));
         Post post = new Post();
         post.setAuthor(author);
         post.setThreads(thread);
@@ -117,7 +117,7 @@ public class ForumController {
     public Comment createComment(@PathVariable Long postId, @RequestBody Comment comment) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
         // Using a default user since authentication is removed
-        Utilisateurs author = userRepository.findById(1L).orElseThrow(() -> new RuntimeException("Default user not found"));
+        Utilisateurs author = userRepository.findById(5L).orElseThrow(() -> new RuntimeException("Default user not found"));
         comment.setAuthor(author);
         comment.setPost(post);
         comment.setCreatedAt(LocalDateTime.now());
